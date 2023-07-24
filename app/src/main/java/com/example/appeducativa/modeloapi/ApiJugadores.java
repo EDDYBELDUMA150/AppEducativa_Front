@@ -19,6 +19,7 @@ public class ApiJugadores {
 
     public static void crearJugador(Context context, Jugador jugador, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "jugador/create";
+        System.out.println("ID jugdaor "+jugador.getUsuarios().getId_usuario());
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject usuarioObject = new JSONObject();

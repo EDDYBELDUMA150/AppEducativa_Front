@@ -81,6 +81,7 @@ public class MainSesion extends AppCompatActivity {
                             us.setUsu_fecha_inic(response.getString("usu_fecha_inic"));
 
                             enviarDataPerfil(us);
+                            enviarDataJugador(us);
 
                             // Manejar diferentes casos de respuesta
                             if (message.equals("Inicio de sesión exitoso")) {
@@ -146,5 +147,10 @@ public class MainSesion extends AppCompatActivity {
     public void enviarDataPerfil(Usuario us){
         Miperfil perfil = new Miperfil();
         perfil.setUsuario(us);
+    }
+
+    public void enviarDataJugador(Usuario us){
+        NombreJugador nombreJugador = new NombreJugador();
+        nombreJugador.setUsuario(us);
     }
 }

@@ -33,11 +33,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="24dp"
-            android:textSize="38sp"
-            android:textStyle="bold"
+            android:text="Puntaje"
+            android:textAlignment="center"
             android:textColor="@android:color/white"
-            android:text="score"
-            android:textAlignment="center"/>
+            android:textSize="38sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/scored_txt"
@@ -70,7 +70,7 @@
         android:id="@+id/done_btn"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:text="done"
-        android:textColor="@android:color/white"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:text="Ok"
+        android:textColor="@android:color/white" />
 </LinearLayout>

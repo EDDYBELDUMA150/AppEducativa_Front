@@ -45,7 +45,7 @@
         android:layout_width="172dp"
         android:layout_height="77dp"
         android:layout_marginTop="28dp"
-        android:text="Ajustes"
+        android:text="Seleccionar actividad"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.577"
         app:layout_constraintStart_toStartOf="parent"

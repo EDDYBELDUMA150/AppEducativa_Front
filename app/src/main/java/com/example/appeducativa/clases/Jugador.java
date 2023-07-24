@@ -5,16 +5,15 @@ public class Jugador {
     private Actividad actividad;
     private Progreso progreso;
     private int plaver_id;
-    private int nombre;
+    private String nombre;
 
     public Jugador() {
     }
 
-    public Jugador(Usuario usuarios, Actividad actividad, Progreso progreso, int plaver_id, int nombre) {
+    public Jugador(Usuario usuarios, Actividad actividad, Progreso progreso, String nombre) {
         this.usuarios = usuarios;
         this.actividad = actividad;
         this.progreso = progreso;
-        this.plaver_id = plaver_id;
         this.nombre = nombre;
     }
 
@@ -50,11 +49,11 @@ public class Jugador {
         this.plaver_id = plaver_id;
     }
 
-    public int getNombre() {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(int nombre) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 }
