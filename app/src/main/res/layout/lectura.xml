@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp"
+            android:text="Lectura"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="38sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textViewDialogContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cada mañana, Alejandro se levanta para ir al colegio. Desayuna tostadas con mantequilla y mermelada y un gran vaso de leche con cacao calentito. Su madre le recuerda las cosas que debe llevar en su mochila y su padre le acerca al colegio en coche para que no se le haga tarde y llegue siempre puntual, aunque los días de lluvia esto se hace muy difícil por la cantidad de coches que se agolpan en las calles de su ciudad. Y es que la puntualidad, según los padres de Alejandro, es uno de los mayores signos de educación que hay."
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</LinearLayout>

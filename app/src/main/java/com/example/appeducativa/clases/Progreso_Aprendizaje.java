@@ -4,9 +4,21 @@ public class Progreso_Aprendizaje {
     private int id_prog_aprend;
     private String progApren_nombre;
     private String progApren_puntaje;
-    private int id_tipo_apren;
-    private int id_resultado;
-    private int id_progress;
+    private Tipo_Aprendizaje id_tipo_apren;
+    private Resultados id_resultado;
+    private Progreso id_progress;
+
+    public Progreso_Aprendizaje() {
+    }
+
+    public Progreso_Aprendizaje(int id_prog_aprend, String progApren_nombre, String progApren_puntaje, Tipo_Aprendizaje id_tipo_apren, Resultados id_resultado, Progreso id_progress) {
+        this.id_prog_aprend = id_prog_aprend;
+        this.progApren_nombre = progApren_nombre;
+        this.progApren_puntaje = progApren_puntaje;
+        this.id_tipo_apren = id_tipo_apren;
+        this.id_resultado = id_resultado;
+        this.id_progress = id_progress;
+    }
 
     public int getId_prog_aprend() {
         return id_prog_aprend;
@@ -32,27 +44,27 @@ public class Progreso_Aprendizaje {
         this.progApren_puntaje = progApren_puntaje;
     }
 
-    public int getId_tipo_apren() {
+    public Tipo_Aprendizaje getId_tipo_apren() {
         return id_tipo_apren;
     }
 
-    public void setId_tipo_apren(int id_tipo_apren) {
+    public void setId_tipo_apren(Tipo_Aprendizaje id_tipo_apren) {
         this.id_tipo_apren = id_tipo_apren;
     }
 
-    public int getId_resultado() {
+    public Resultados getId_resultado() {
         return id_resultado;
     }
 
-    public void setId_resultado(int id_resultado) {
+    public void setId_resultado(Resultados id_resultado) {
         this.id_resultado = id_resultado;
     }
 
-    public int getId_progress() {
+    public Progreso getId_progress() {
         return id_progress;
     }
 
-    public void setId_progress(int id_progress) {
+    public void setId_progress(Progreso id_progress) {
         this.id_progress = id_progress;
     }
 }

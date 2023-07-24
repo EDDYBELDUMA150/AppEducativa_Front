@@ -12,6 +12,8 @@ public class Usuario implements Serializable {
     private String usu_correo;
     private String usu_nivelacademico;
     private String usu_fechaNacimiento;
+
+    private String usu_fecha_inic;
     private Roles id_rol;
 
     public Usuario() {
@@ -80,5 +82,13 @@ public class Usuario implements Serializable {
 
     public void setId_rol(Roles id_rol) {
         this.id_rol = id_rol;
+    }
+
+    public String getUsu_fecha_inic() {
+        return usu_fecha_inic;
+    }
+
+    public void setUsu_fecha_inic(String usu_fecha_inic) {
+        this.usu_fecha_inic = usu_fecha_inic;
     }
 }

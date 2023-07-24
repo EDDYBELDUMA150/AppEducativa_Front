@@ -29,7 +29,10 @@ public class MainSesion extends AppCompatActivity {
     private EditText contraseñaEditText;
     private Button iniciarSesionButton;
     private Button registroButton;
+
     ArrayList<Usuario> datos =new ArrayList<>();
+
+    private Usuario usuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,7 @@ public class MainSesion extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 iniciaSesion(correoEditText.getText().toString(), contraseñaEditText.getText().toString());
+                //obtenerId();
             }
         });
 
@@ -61,38 +65,48 @@ public class MainSesion extends AppCompatActivity {
 
     public void iniciaSesion(String correo, String clave) {
 
-        ApiUsuarios.obtenerUsuarioPorCorreo(this, correo,
+        ApiUsuarios.loginApi(this, correo, clave,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // Aquí procesas la respuesta obtenida
-                        if (response != null) {
-                            // Obtener la contraseña encriptada del usuario del JSON
-                            String claveEncriptada = null;
-                            try {
-                                claveEncriptada = response.getString("usu_contra");
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
-                            }
+                        try {
+                            // Obtener el mensaje de la respuesta
+                            String message = response.getString("message");
+                            Usuario us = new Usuario();
+                            us.setId_usuario(Integer.parseInt(response.getString("id_usuario")));
+                            us.setUsu_correo(response.getString("correo"));
+                            us.setUsu_fechaNacimiento(response.getString("usu_fecha_nacimiento"));
+                            us.setUsu_nivelacademico(response.getString("usu_nivelacademico"));
+                            us.setUsu_nombre(response.getString("usu_nombre"));
+                            us.setUsu_fecha_inic(response.getString("usu_fecha_inic"));
 
-                            // Verificar si la contraseña ingresada coincide con la contraseña encriptada
-                            if (BCrypt.checkpw(clave, claveEncriptada)) {
-                                // Las credenciales son válidas
+                            enviarDataPerfil(us);
+
+                            // Manejar diferentes casos de respuesta
+                            if (message.equals("Inicio de sesión exitoso")) {
+                                // Las credenciales son válidas, mostrar la siguiente actividad
                                 mostrarSegundaActivity();
+                            } else if (message.equals("Usuario no encontrado")) {
+                                // Usuario no encontrado, mostrar mensaje de error
+                                mostrarMensaje("Usuario no encontrado. Verifica tus credenciales.");
+                            } else if (message.equals("Contraseña incorrecta")) {
+                                // Contraseña incorrecta, mostrar mensaje de error
+                                mostrarMensaje("Contraseña incorrecta. Verifica tus credenciales.");
                             } else {
-                                // Las credenciales son inválidas
-                                mostrarMensaje("Credenciales inválidas");
+                                // Otro mensaje de error desconocido, mostrar mensaje genérico
+                                mostrarMensaje("Error en el inicio de sesión. Inténtalo de nuevo más tarde.");
                             }
-                        } else {
-                            // Usuario no encontrado
-                            mostrarMensaje("Usuario no encontrado");
+                        } catch (JSONException e) {
+                            // Error al procesar la respuesta JSON
+                            mostrarMensaje("Error en el formato de la respuesta del servidor.");
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        mostrarMensaje("Volley error");
+                        error.printStackTrace();
+                        mostrarMensaje("Error de conexión. Verifica tu conexión a Internet.");
                     }
                 });
     }
@@ -115,21 +129,6 @@ public class MainSesion extends AppCompatActivity {
         return false; // Las credenciales son inválidas
     }
 
-    private void manejaJson(@NonNull JSONArray jsonArray){
-        for (int i=0; i<jsonArray.length();i++){
-            JSONObject jsonObject=null;
-            Usuario publicacion = new Usuario();
-            try {
-                jsonObject=jsonArray.getJSONObject(i);
-                publicacion.setUsu_password(jsonObject.getString("usu_contra"));
-                publicacion.setUsu_correo(jsonObject.getString("usu_correo"));
-                datos.add(publicacion);
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     private void mostrarMensaje(String mensaje) {
         Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
     }
@@ -142,5 +141,10 @@ public class MainSesion extends AppCompatActivity {
     private void mostrarRegistroActivity() {
         Intent intent = new Intent(this, Registro.class);
         startActivity(intent);
+    }
+
+    public void enviarDataPerfil(Usuario us){
+        Miperfil perfil = new Miperfil();
+        perfil.setUsuario(us);
     }
 }

@@ -17,7 +17,7 @@ import org.json.JSONObject;
 
 public class ApiUsuarios {
     private static final String BASE_URL = "http://10.0.2.2:8080/api/";
-/*
+
     public static void obtenerUsuarios(Context context, final Response.Listener<JSONArray> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "usuarios/list";
 
@@ -35,10 +35,29 @@ public class ApiUsuarios {
                     }
                 });
         Volley.newRequestQueue(context).add(request);
-    }*/
+    }
 
-    public static void obtenerUsuarioPorCorreo(Context context, String correo, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
-        String url = BASE_URL + "usuarios/login?correo=" + correo;
+    public static void loginApi(Context context, String correo, String password, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
+        String url = BASE_URL + "usuarios/login/" + correo + "/" + password;
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        successListener.onResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        errorListener.onErrorResponse(error);
+                    }
+                });
+        Volley.newRequestQueue(context).add(request);
+    }
+
+    public void loginApi3 (Context context, String correo, String password, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
+        String url = BASE_URL + "usuarios/login3?correo="+correo+"&password="+password;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -58,7 +77,6 @@ public class ApiUsuarios {
 
     public static void crearUsuario(Context context, Usuario usuario, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "usuarios/create";
-        System.out.println("ROLES QUE SE ENVIAN"+usuario.getId_rol().getId_rol().toString());
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject rolesObject = new JSONObject();
@@ -68,7 +86,7 @@ public class ApiUsuarios {
             jsonObject.put("roles", rolesObject);
             jsonObject.put("usu_nombre", usuario.getUsu_nombre());
             jsonObject.put("usu_contra", usuario.getUsu_password());
-            jsonObject.put("usu_correo", usuario.getUsu_correo());
+            jsonObject.put("correo", usuario.getUsu_correo());
             jsonObject.put("usu_nivelacademico", usuario.getUsu_nivelacademico());
             jsonObject.put("usu_fecha_nacimiento", usuario.getUsu_fechaNacimiento());
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -45,7 +46,7 @@ public class Registro extends AppCompatActivity {
     Spinner nivelAcademicoEdt;
     TextView fechaNacimientoEdt;
 
-
+    Usuario usreg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,9 +111,8 @@ public class Registro extends AppCompatActivity {
         String fechaNacimiento = fechaNacimientoEdt.getText().toString();
         Roles rol = new Roles();
         rol.setId_rol(2);
-        rol.setRol_nombre("Usuarios");
 
-            Usuario usreg = new Usuario(nombre, contra, correo, nivelAcademico, fechaNacimiento, rol);
+        usreg = new Usuario(nombre, contra, correo, nivelAcademico, fechaNacimiento, rol);
 
             ApiUsuarios.crearUsuario(this, usreg, new Response.Listener<JSONObject>() {
                 @Override
@@ -121,6 +121,7 @@ public class Registro extends AppCompatActivity {
                     // manejaJson(response);
                     Toast.makeText(Registro.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
                     limpiar();
+                    mostrarJugadorNombre();
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -131,8 +132,9 @@ public class Registro extends AppCompatActivity {
             });
     }
 
-    private void mostrarInicioActivity() {
-
+    private void mostrarJugadorNombre() {
+        Intent intent = new Intent(this, NombreJugador.class);
+        startActivity(intent);
     }
 
     private void mostrarMensaje(String mensaje) {

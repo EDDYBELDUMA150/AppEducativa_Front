@@ -16,6 +16,27 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".controlador.NombreJugador"
+            android:exported="false" />
+        <activity
+            android:name=".controlador.Miperfil"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesSalvaLili.ScoreActivities"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesSalvaLili.QuestionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesSalvaLili.setsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesSalvaLili.Categoritas"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesSalvaLili.ActividadMemoria"
+            android:exported="false" />
+        <activity
             android:name=".controlador.SelTipoAprendizaje"
             android:exported="false" />
         <activity
