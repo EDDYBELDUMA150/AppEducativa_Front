@@ -36,12 +36,9 @@ public class Categoritas extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
 
         List<CategoryModel> list = new ArrayList<>();
-        list.add(new CategoryModel("", "Lectura Comprensiva"));
-        list.add(new CategoryModel("", "Lectura Logica"));
-        list.add(new CategoryModel("", "Category1"));
-        list.add(new CategoryModel("", "Category1"));
-        list.add(new CategoryModel("", "Category1"));
-        list.add(new CategoryModel("", "Category1"));
+        list.add(new CategoryModel("", "Aprendizaje Comprensivo"));
+        list.add(new CategoryModel("", "Aprendizaje Logico"));
+        list.add(new CategoryModel("", "Aprendizaje por Juegos"));
 
         CategoryAdapter adapter = new CategoryAdapter(list);
         recyclerView.setAdapter(adapter);

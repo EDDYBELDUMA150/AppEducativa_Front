@@ -10,32 +10,28 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.appeducativa.clases.Progreso_Aprendizaje;
-import com.example.appeducativa.clases.Resultados;
+import com.example.appeducativa.clases.Progreso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ApiProgresoAprendizaje {
-
+public class ApiProgreso {
     private static final String BASE_URL = "http://10.0.2.2:8080/api/";
-    public static void crearProgresoApren(Context context, Progreso_Aprendizaje progreso_aprendizaje, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
-        String url = BASE_URL + "progresoAprendizaje/create";
+
+    public static void crearProgreso(Context context, Progreso progreso, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
+        String url = BASE_URL + "progreso/create";
 
         try {
             JSONObject jsonObject = new JSONObject();
-            JSONObject tipoAprendObject = new JSONObject();
-            JSONObject resultadoObject = new JSONObject();
+            JSONObject progAprendObject = new JSONObject();
 
-            System.out.println(progreso_aprendizaje.getId_resultado().getId_resultado());
+            progAprendObject.put("id_progapre", progreso.getProgreso_aprendizaje().getId_prog_aprend());
 
-            resultadoObject.put("id_resultado", progreso_aprendizaje.getId_resultado().getId_resultado());
-            tipoAprendObject.put("id_tipo_apren", progreso_aprendizaje.getId_tipo_apren().getId_tipo_aprend());
+            jsonObject.put("progresoAprendizaje", progAprendObject);
+            jsonObject.put("prog_nivel", progreso.getProg_nivel());
+            jsonObject.put("prog_puntaje_total", progreso.getProg_puntaje_total());
+            jsonObject.put("prog_fecha_init", progreso.getProg_fecha_init());
 
-            jsonObject.put("resultados", resultadoObject);
-            jsonObject.put("tipoAprendizaje", tipoAprendObject);
-            jsonObject.put("progapr_nombre", progreso_aprendizaje.getProgApren_nombre());
-            jsonObject.put("progapr_punntaje_aprendizaje", progreso_aprendizaje.getProgApren_puntaje());
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -56,32 +52,34 @@ public class ApiProgresoAprendizaje {
         }
     }
 
-    public LiveData<Integer> getIdProgApLiveData(Context context) {
-        MutableLiveData<Integer> idLiveData = new MutableLiveData<>();
+    public LiveData<Integer> getIdProgLiveData(Context context) {
+        MutableLiveData<Integer> idProgLiveData = new MutableLiveData<>();
 
-        String url = BASE_URL + "progresoAprendizaje/latest";
+        String url = BASE_URL + "progreso/latest";
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            int idActividad = response.getInt("id_proa");
-                            idLiveData.setValue(idActividad);
+                            int idActividad = response.getInt("id_prog");
+                            idProgLiveData.setValue(idActividad);
                         } catch (JSONException e) {
-                            idLiveData.setValue(null);
+                            idProgLiveData.setValue(null);
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        idLiveData.setValue(null);
+                        idProgLiveData.setValue(null);
                     }
                 }
         );
 
         Volley.newRequestQueue(context).add(request);
 
-        return idLiveData;
+        return idProgLiveData;
     }
+
+
 }

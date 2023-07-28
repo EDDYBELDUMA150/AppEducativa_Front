@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.animation.Animator;
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -31,8 +33,10 @@ import com.example.appeducativa.clases.Niveles;
 import com.example.appeducativa.clases.Recursos;
 import com.example.appeducativa.clases.Tipo_Aprendizaje;
 import com.example.appeducativa.modeloapi.ApiActividades;
+import com.example.appeducativa.modeloapi.ApiRecursos;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -40,7 +44,7 @@ import java.util.List;
 
 public class QuestionsActivity extends AppCompatActivity {
 
-    private TextView question,noIndicator;
+    private TextView question,noIndicator,lecturaTextView;
     private FloatingActionButton bookmarkbtn;
     private LinearLayout optionsContainer;
     private Button shareBtn, nextBtn;
@@ -53,6 +57,12 @@ public class QuestionsActivity extends AppCompatActivity {
     private String dialogText;
 
     int selectedSet=1;
+
+    Niveles niveles = new Niveles();
+    Recursos recursos = new Recursos();
+    Tipo_Aprendizaje tipoapren = new Tipo_Aprendizaje();
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,44 +79,51 @@ public class QuestionsActivity extends AppCompatActivity {
         shareBtn = findViewById(R.id.share_btn);
         nextBtn = findViewById(R.id.next_btn);
 
+        // Encontrar la referencia del TextView para la lectura
+        lecturaTextView = findViewById(R.id.textViewDialogContent);
 
         selectedSet = getIntent().getIntExtra("selected_set", 1); // El valor por defecto es 1
+
 
         // Cargar la lista de preguntas correspondiente según el conjunto seleccionado
         if (selectedSet == 1) {
             list = new ArrayList<>();
             // preguntas para el conjunto 1
-            list.add(new QuestionModel("question 1: ¿Qué desayuna Alejandro cada mañana?", "Tostadas con mantequilla y mermelada","Cereales con leche","Una fruta y una galleta", "cafe con pan","Tostadas con mantequilla y mermelada"));
-            list.add(new QuestionModel("question 2: ¿Qué medio de transporte utiliza?", "La bicicleta","El coche","El autobús", "El tren","El coche"));
-            list.add(new QuestionModel("question 3: ¿Quién acompaña a Alejandro al colegio?", "Su madre","Su hermano","Su Padre", "Su Abuela","Su Padre"));
-            list.add(new QuestionModel("question 4: ¿Qué le recuerda su madre antes de irse?", "Dar de comer al perro","Lavarse los dientes","Las cosas que debe llevar en su mochila", "Dar de comer al Gato","Las cosas que debe llevar en su mochila"));
-            list.add(new QuestionModel("question 5: ¿Qué es la puntualidad según los padres de Alejandro?", "Uno de los mayores signos de educación","Algo innecesario","Nada referente a la educacion", "sin moral","Uno de los mayores signos de educación"));
+            list.add(new QuestionModel("Pregunta 1: ¿Qué desayuna Alejandro cada mañana?", "Tostadas con mantequilla y mermelada","Cereales con leche","Una fruta y una galleta", "cafe con pan","Tostadas con mantequilla y mermelada"));
+            list.add(new QuestionModel("Pregunta 2: ¿Qué medio de transporte utiliza?", "La bicicleta","El coche","El autobús", "El tren","El coche"));
+            list.add(new QuestionModel("Pregunta 3: ¿Quién acompaña a Alejandro al colegio?", "Su madre","Su hermano","Su Padre", "Su Abuela","Su Padre"));
+            list.add(new QuestionModel("Pregunta 4: ¿Qué le recuerda su madre antes de irse?", "Dar de comer al perro","Lavarse los dientes","Las cosas que debe llevar en su mochila", "Dar de comer al Gato","Las cosas que debe llevar en su mochila"));
+            list.add(new QuestionModel("Pregunta 5: ¿Qué es la puntualidad según los padres de Alejandro?", "Uno de los mayores signos de educación","Algo innecesario","Nada referente a la educacion", "sin moral","Uno de los mayores signos de educación"));
 
-            dialogText = "Cada mañana, Alejandro se levanta para ir al colegio. Desayuna tostadas con mantequilla y mermelada y un gran vaso de leche con cacao calentito. Su madre le recuerda las cosas que debe llevar en su mochila y su padre le acerca al colegio en coche para que no se le haga tarde y llegue siempre puntual, aunque los días de lluvia esto se hace muy difícil por la cantidad de coches que se agolpan en las calles de su ciudad. Y es que la puntualidad, según los padres de Alejandro, es uno de los mayores signos de educación que hay.";
+            /*dialogText = "Cada mañana, Alejandro se levanta para ir al colegio. Desayuna tostadas con mantequilla y mermelada y un gran vaso de leche con cacao calentito. Su madre le recuerda las cosas que debe llevar en su mochila y su padre le acerca al colegio en coche para que no se le haga tarde y llegue siempre puntual, aunque los días de lluvia esto se hace muy difícil por la cantidad de coches que se agolpan en las calles de su ciudad. Y es que la puntualidad, según los padres de Alejandro, es uno de los mayores signos de educación que hay.";
+             */             cargarLecturaDesdeAPI(selectedSet);
+
 
             // Preguntas conjunto 2
         } else if (selectedSet == 2) {
             list = new ArrayList<>();
             // Agregar preguntas para el conjunto 2
-            list.add(new QuestionModel("question 1: ¿Cuáles son los ingredientes que añaden a las hamburguesas?", "Jarabe de estrellas y polvo de mostaza marciano", "Ketchup lunar y mayonesa de venus", "Empanadas y Tortillas", "No le añade ningún ingrediente", "Jarabe de estrellas y polvo de mostaza marciano"));
-            list.add(new QuestionModel("question 2: ¿Qué idioma son capaces de hablar los marcianos?", "El nuestro (Español)", "Klingon", "Marteriano", "Mandarin", "El nuestro (Español)"));
-            list.add(new QuestionModel("question 3: ¿Cuántas hamburguesas son capaces de comerse en un día?", "1", "1000", "100", "500", "100"));
-            list.add(new QuestionModel("question 4: ¿De qué comida son fans?", "Pizzas", "Hamburguesas", "Perritos calientes", "Mandarina", "Hamburguesas"));
-            list.add(new QuestionModel("question 5: ¿Cómo son los ritmos musicales que bailan estos marcianos?", "Reguetton", "Interestelares", "Salseros", "Interestelares", "Interestelares"));
+            list.add(new QuestionModel("Pregunta 1: ¿Cuáles son los ingredientes que añaden a las hamburguesas?", "Jarabe de estrellas y polvo de mostaza marciano", "Ketchup lunar y mayonesa de venus", "Empanadas y Tortillas", "No le añade ningún ingrediente", "Jarabe de estrellas y polvo de mostaza marciano"));
+            list.add(new QuestionModel("Pregunta 2: ¿Qué idioma son capaces de hablar los marcianos?", "El nuestro (Español)", "Klingon", "Marteriano", "Mandarin", "El nuestro (Español)"));
+            list.add(new QuestionModel("Pregunta 3: ¿Cuántas hamburguesas son capaces de comerse en un día?", "1", "1000", "100", "500", "100"));
+            list.add(new QuestionModel("Pregunta 4: ¿De qué comida son fans?", "Pizzas", "Hamburguesas", "Perritos calientes", "Mandarina", "Hamburguesas"));
+            list.add(new QuestionModel("Pregunta 5: ¿Cómo son los ritmos musicales que bailan estos marcianos?", "Reguetton", "Interestelares", "Salseros", "Interestelares", "Interestelares"));
 
-            dialogText = "Si alguna vez os encontráis con un marciano tened mucho cuidado. Dicen que son capaces de hablar nuestro idioma a la perfección y de mezclarse entre los humanos sin que nadie se percate de su presencia. Son fans de las hamburguesas, las cuales aderezan con jarabe de estrellas y polvo de mostaza totalmente marciano, y son capaces de comerse cien en un día sin que se note en sus cuerpos el más mínimo kilo de más. Pero sobre todo, de lo que son capaces, es de hacer que los niños y niñas del mundo disfruten de lo lindo al son de ritmos musicales interestelares. ¡Son muy divertidos!";
-
+            /*dialogText = "Si alguna vez os encontráis con un marciano tened mucho cuidado. Dicen que son capaces de hablar nuestro idioma a la perfección y de mezclarse entre los humanos sin que nadie se percate de su presencia. Son fans de las hamburguesas, las cuales aderezan con jarabe de estrellas y polvo de mostaza totalmente marciano, y son capaces de comerse cien en un día sin que se note en sus cuerpos el más mínimo kilo de más. Pero sobre todo, de lo que son capaces, es de hacer que los niños y niñas del mundo disfruten de lo lindo al son de ritmos musicales interestelares. ¡Son muy divertidos!";
+             */
+            cargarLecturaDesdeAPI(selectedSet);
         }else if (selectedSet == 3) {
             list = new ArrayList<>();
-            // Agregar preguntas para el conjunto 2
-            list.add(new QuestionModel("question 1: ¿De qué trataba la charla que dieron en el colegio de Carla?", "De educación vial", "De cómo comportarse en clase", "De matemáticas", "Ninguna de las opciones", "De educación vial"));
-            list.add(new QuestionModel("question 2: ¿Quién o quienes la dieron?", "Solo su maestra", "Solo un policía", "Su maestra y un policía", "El Ejercito", "Su maestra y un policía"));
-            list.add(new QuestionModel("question 3: La historia sucede en el colegio de...", "Carla", "Luis", "Pedro", "Maria", "Carla"));
-            list.add(new QuestionModel("question 4: Carla ha aprendido que jamás debe cruzar la calle, pero ¿en qué situación?", "Cuando el semáforo se encuentre de color rojo", "Cuando el semáforo se encuentre de color verde", "Cuando el semáforo se encuentre de color ámbar", "Cuando el semáforo se encuentre de color violeta", "Cuando el semáforo se encuentre de color rojo"));
-            list.add(new QuestionModel("question 5: ¿Quiénes deben cumplir las normas de tráfico?", "Nadie, no es necesario", "Los conductores y los peatones", "Solo los conductores", "Solo los peatones", "Los conductores y los peatones"));
+            // Agregar preguntas para el conjunto 3
+            list.add(new QuestionModel("Pregunta 1: ¿De qué trataba la charla que dieron en el colegio de Carla?", "De educación vial", "De cómo comportarse en clase", "De matemáticas", "Ninguna de las opciones", "De educación vial"));
+            list.add(new QuestionModel("Pregunta 2: ¿Quién o quienes la dieron?", "Solo su maestra", "Solo un policía", "Su maestra y un policía", "El Ejercito", "Su maestra y un policía"));
+            list.add(new QuestionModel("Pregunta 3: La historia sucede en el colegio de...", "Carla", "Luis", "Pedro", "Maria", "Carla"));
+            list.add(new QuestionModel("Pregunta 4: Carla ha aprendido que jamás debe cruzar la calle, pero ¿en qué situación?", "Cuando el semáforo se encuentre de color rojo", "Cuando el semáforo se encuentre de color verde", "Cuando el semáforo se encuentre de color ámbar", "Cuando el semáforo se encuentre de color violeta", "Cuando el semáforo se encuentre de color rojo"));
+            list.add(new QuestionModel("Pregunta 5: ¿Quiénes deben cumplir las normas de tráfico?", "Nadie, no es necesario", "Los conductores y los peatones", "Solo los conductores", "Solo los peatones", "Los conductores y los peatones"));
 
-            dialogText = "El otro día, en el colegio de Carla, les dieron una charla sobre educación vial. Su maestra y un policía les mostraron la cantidad de peligros que existen en la carretera y que se dan cuando hacemos algo tan sencillo como cruzar la calle. Ahora Carla sabe que existen muchas normas de circulación que debemos tener presentes y cumplir como conductores y como peatones. Y sobre todo, ha aprendido que jamás debe cruzar la calle cuando el semáforo se encuentre de color rojo. Es muy importante que también, y hasta que sea más mayor, cruce de la mano de sus padres o profesores para una mayor seguridad.";
-
+            /*dialogText = "El otro día, en el colegio de Carla, les dieron una charla sobre educación vial. Su maestra y un policía les mostraron la cantidad de peligros que existen en la carretera y que se dan cuando hacemos algo tan sencillo como cruzar la calle. Ahora Carla sabe que existen muchas normas de circulación que debemos tener presentes y cumplir como conductores y como peatones. Y sobre todo, ha aprendido que jamás debe cruzar la calle cuando el semáforo se encuentre de color rojo. Es muy importante que también, y hasta que sea más mayor, cruce de la mano de sus padres o profesores para una mayor seguridad.";
+             */
+            cargarLecturaDesdeAPI(selectedSet);
         } else {
             Toast.makeText(QuestionsActivity.this, "Error no se encuntra ninguna lista", Toast.LENGTH_SHORT).show();
         }
@@ -160,10 +177,13 @@ public class QuestionsActivity extends AppCompatActivity {
                 if(position == list.size()){
                     // Enviar la actividad al API
                     guardarActividadEnAPI();
+                    int selectedSet = getIntent().getIntExtra("selected_set", 1);
+                    selectedSet++;
 
-                    Intent scoreIntent = new Intent(QuestionsActivity.this,ScoreActivities.class);
-                    scoreIntent.putExtra("score",score);
-                    scoreIntent.putExtra("total",list.size());
+                    Intent scoreIntent = new Intent(QuestionsActivity.this, ScoreActivities.class);
+                    scoreIntent.putExtra("score", score);
+                    scoreIntent.putExtra("total", list.size());
+                    scoreIntent.putExtra("selected_set", selectedSet); // Pasar el siguiente conjunto seleccionado
                     startActivity(scoreIntent);
                     finish();
                     return;
@@ -261,6 +281,7 @@ public class QuestionsActivity extends AppCompatActivity {
 
         // Retroalimentación basada en el puntaje alcanzado
         String retroalimentacion="";
+        // Retroalimentación basada en el puntaje alcanzado
         if (puntajeAlcanzado >= 4) {
             retroalimentacion = "¡Excelente trabajo! Has obtenido un puntaje alto.";
         } else if (puntajeAlcanzado >= 3) {
@@ -273,16 +294,21 @@ public class QuestionsActivity extends AppCompatActivity {
             retroalimentacion = "Necesitas más práctica. Sigue esforzándote.";
         }
 
-        Niveles niveles = new Niveles();
-        niveles.setId_nivel(1);
+        niveles.setId_nivel(selectedSet);
+        tipoapren.setId_tipo_aprend(2);
+        recursos.setId_recurso(selectedSet);
 
-        Recursos recursos = new Recursos();
-        recursos.setId_recurso(1);
+        Actividad actividad = new Actividad();
+        actividad.setAct_nombre(nombreActividad);
+        actividad.setAct_puntaje_alcanzado(puntajeAlcanzado);
+        actividad.setAct_puntaje_max(pint_Max);
+        actividad.setAct_puntaje_min(pint_Min);
+        actividad.setNiveles(niveles);
+        actividad.setRecursos(recursos);
+        actividad.setTipo_aprendizaje(tipoapren);
 
-        Tipo_Aprendizaje tipo_aprendizaje = new Tipo_Aprendizaje();
-        tipo_aprendizaje.setId_tipo_aprend(1);
-
-        Actividad actividad = new Actividad(nombreActividad, descripcion, difcultad, pint_Max, pint_Min, puntajeAlcanzado, "Comprensión", true, retroalimentacion, recursos, niveles, tipo_aprendizaje);
+        // Mostrar la retroalimentación en un Toast
+        Toast.makeText(QuestionsActivity.this, retroalimentacion, Toast.LENGTH_LONG).show();
 
         ApiActividades.crearActividad(QuestionsActivity.this, actividad,
                 new Response.Listener<JSONObject>() {
@@ -320,10 +346,56 @@ public class QuestionsActivity extends AppCompatActivity {
                 });
     }
 
-    public void crearResultado(){
-        int puntajeResultado = score;
-
+    private void cargarLecturaDesdeAPI(int selectedSet) {
+        // Crear la solicitud para obtener la lectura según el conjunto seleccionado
+        ApiRecursos.obtenerLecturaPorConjunto(this, selectedSet,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Mostrar la lectura obtenida en el TextView
+                        String lectura = null;
+                        try {
+                            lectura = response.getString("rec_lec");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        dialogText = lectura; // Actualizar el valor de dialogText con la lectura obtenida
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Manejar el error en caso de que ocurra
+                        String mensajeError = "Error: No se pudo obtener la lectura desde el servidor.";
+                        Toast.makeText(QuestionsActivity.this, mensajeError, Toast.LENGTH_LONG).show();
+                    }
+                });
     }
+
+    private void showExitConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmación");
+        builder.setMessage("¿Estás seguro que deseas salir? Si lo haces, la actividad no se guardará.");
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Aquí puedes realizar alguna acción si el usuario acepta (por ejemplo, volver a la actividad de categorías)
+                Intent intent = new Intent(QuestionsActivity.this, Categoritas.class);
+                startActivity(intent);
+                finish(); // Finaliza la actividad actual para que no se pueda volver a ella desde la siguiente
+            }
+        });
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Aquí no es necesario hacer nada, simplemente cerrar el cuadro de mensaje
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
     private void enableOption(boolean enabled){
         for (int i = 0;i < 4; i++){

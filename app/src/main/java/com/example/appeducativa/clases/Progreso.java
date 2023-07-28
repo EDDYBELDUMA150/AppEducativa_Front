@@ -11,16 +11,19 @@ public class Progreso {
     private String prog_fecha_init;
     private Date prog_fehca_final;
 
+    private Progreso_Aprendizaje progreso_aprendizaje;
+
     public Progreso() {
     }
 
-    public Progreso(int id_progress, int prog_puntaje_total, int prog_nivel, Time prog_hora_promd, String prog_fecha_init, Date prog_fehca_final) {
+    public Progreso(int id_progress, int prog_puntaje_total, int prog_nivel, Time prog_hora_promd, String prog_fecha_init, Date prog_fehca_final, Progreso_Aprendizaje progreso_aprendizaje) {
         this.id_progress = id_progress;
         this.prog_puntaje_total = prog_puntaje_total;
         this.prog_nivel = prog_nivel;
         this.prog_hora_promd = prog_hora_promd;
         this.prog_fecha_init = prog_fecha_init;
         this.prog_fehca_final = prog_fehca_final;
+        this.progreso_aprendizaje = progreso_aprendizaje;
     }
 
     public int getId_progress() {
@@ -69,5 +72,13 @@ public class Progreso {
 
     public void setProg_fehca_final(Date prog_fehca_final) {
         this.prog_fehca_final = prog_fehca_final;
+    }
+
+    public Progreso_Aprendizaje getProgreso_aprendizaje() {
+        return progreso_aprendizaje;
+    }
+
+    public void setProgreso_aprendizaje(Progreso_Aprendizaje progreso_aprendizaje) {
+        this.progreso_aprendizaje = progreso_aprendizaje;
     }
 }

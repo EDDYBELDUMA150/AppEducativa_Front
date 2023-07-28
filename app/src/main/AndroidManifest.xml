@@ -16,6 +16,21 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".controlador.SelectActivity"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesRaul.ActividadDosPalabras"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesRaul.ActividadDos"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesRaul.Retroalimentacion"
+            android:exported="false" />
+        <activity
+            android:name=".actividadesRaul.ActividadUno"
+            android:exported="false" />
+        <activity
             android:name=".controlador.NombreJugador"
             android:exported="false" />
         <activity

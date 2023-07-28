@@ -1,7 +1,12 @@
 package com.example.appeducativa.actividadesSalvaLili;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -20,16 +25,36 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.example.appeducativa.R;
+import com.example.appeducativa.actividadesRaul.ActividadUno;
 import com.example.appeducativa.clases.Actividad;
+import com.example.appeducativa.clases.Jugador;
+import com.example.appeducativa.clases.Niveles;
+import com.example.appeducativa.clases.Progreso;
+import com.example.appeducativa.clases.Progreso_Aprendizaje;
+import com.example.appeducativa.clases.Recursos;
+import com.example.appeducativa.clases.Resultados;
+import com.example.appeducativa.clases.Tipo_Aprendizaje;
+import com.example.appeducativa.clases.Usuario;
 import com.example.appeducativa.modeloapi.ApiActividades;
+import com.example.appeducativa.modeloapi.ApiJugador;
+import com.example.appeducativa.modeloapi.ApiJugadores;
+import com.example.appeducativa.modeloapi.ApiProgreso;
+import com.example.appeducativa.modeloapi.ApiProgresoAprendizaje;
+import com.example.appeducativa.modeloapi.ApiResultados;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
 
 public class ActividadMemoria extends AppCompatActivity {
-    ImageButton  imb01, imb02, imb03, imb04, imb05, imb06, imb07, imb08, imb09, imb10, imb11, imb12, imb13, imb14, imb15,imb16;
+    ImageButton imb01, imb02, imb03, imb04, imb05, imb06, imb07, imb08, imb09, imb10, imb11, imb12, imb13, imb14, imb15, imb16;
     ImageButton[] tablero = new ImageButton[16];
     Button botonReiniciar, botonSalir;
     TextView textoPuntuacion;
@@ -44,15 +69,38 @@ public class ActividadMemoria extends AppCompatActivity {
     int numeroPrimero, numeroSegundo;
     boolean bloqueo = false;
     final Handler handler = new Handler();
+    private int selectedImageIndex = -1;
+    private int[] images = {R.drawable.bici, R.drawable.carro, R.drawable.monorail, R.drawable.tren};
+    int id_usu;
+
+    String nombreActividad = "Juego de Memorias"; // Nombre de la actividad
+
+    private ApiActividades apiActividad;
+    private ApiResultados apiResult;
+    private ApiProgresoAprendizaje apiProgresoAprendizaje;
+    private ApiProgreso apiProgreso;
+
+    Actividad actividad = new Actividad();
+    Resultados resultados = new Resultados();
+    Progreso_Aprendizaje progreso_aprendizaje = new Progreso_Aprendizaje();
+    Progreso progreso = new Progreso();
+    Jugador jugador = new Jugador();
+    Tipo_Aprendizaje tipo_aprendizaje = new Tipo_Aprendizaje();
+    Usuario userid = new Usuario();
+
+    // Configurar la visibilidad del botón a invisible
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memoria);
+
+        id_usu = getIntent().getIntExtra("player", 0);
+
         init();
     }
 
-    private void cargarTablero(){
+    private void cargarTablero() {
         imb01 = findViewById(R.id.boton01);
         imb02 = findViewById(R.id.boton02);
         imb03 = findViewById(R.id.boton03);
@@ -87,13 +135,19 @@ public class ActividadMemoria extends AppCompatActivity {
         tablero[14] = imb15;
         tablero[15] = imb16;
     }
-    private void cargarBotones(){
+
+    private void cargarBotones() {
         botonReiniciar = findViewById(R.id.botonreiniciar);
         botonSalir = findViewById(R.id.botonsalir);
         botonReiniciar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init();
+               // init();
+                guardarActividadEnAPI();
+                getIdMaxAct();
+                getIdMaxResult();
+                getIdMaxProa();
+                getIdMaxProgre();
             }
         });
 
@@ -105,14 +159,14 @@ public class ActividadMemoria extends AppCompatActivity {
         });
     }
 
-    private void cargarTexto(){
+    private void cargarTexto() {
         textoPuntuacion = findViewById(R.id.puntaje);
         puntuacion = 0;
         aciertos = 0;
         textoPuntuacion.setText("Puntuacion: " + puntuacion);
     }
 
-    private void cargarImagenes(){
+    private void cargarImagenes() {
         imagenes = new int[]{
                 R.drawable.fondoj1,
                 R.drawable.fondoj2,
@@ -126,9 +180,9 @@ public class ActividadMemoria extends AppCompatActivity {
         fondo = R.drawable.img;
     }
 
-    private ArrayList<Integer> barajar(int longitud){
+    private ArrayList<Integer> barajar(int longitud) {
         ArrayList<Integer> result = new ArrayList<Integer>();
-        for(int i=0; i<longitud*2; i++){
+        for (int i = 0; i < longitud * 2; i++) {
             result.add(i % longitud);
         }
         Collections.shuffle(result);
@@ -136,8 +190,8 @@ public class ActividadMemoria extends AppCompatActivity {
         return result;
     }
 
-    private void comprobar(int i, final ImageButton imgb){
-        if(primero == null){
+    private void comprobar(int i, final ImageButton imgb) {
+        if (primero == null) {
             primero = imgb;
             primero.setScaleType(ImageView.ScaleType.CENTER_CROP);
             primero.setImageResource(imagenes[arrayDesordenado.get(i)]);
@@ -149,16 +203,20 @@ public class ActividadMemoria extends AppCompatActivity {
             imgb.setImageResource(imagenes[arrayDesordenado.get(i)]);
             imgb.setEnabled(false);
             numeroSegundo = arrayDesordenado.get(i);
-            if(numeroPrimero == numeroSegundo){
+            if (numeroPrimero == numeroSegundo) {
                 primero = null;
                 bloqueo = false;
                 aciertos++;
                 puntuacion++;
                 textoPuntuacion.setText("Puntuación: " + puntuacion);
-                if(aciertos == imagenes.length){
+                if (aciertos == imagenes.length) {
                     Toast toast = Toast.makeText(getApplicationContext(), "Has ganado!!", Toast.LENGTH_LONG);
                     toast.show();
                     guardarActividadEnAPI();
+                    getIdMaxAct();
+                    getIdMaxResult();
+                    getIdMaxProa();
+                    getIdMaxProgre();
                 }
             } else {
                 handler.postDelayed(new Runnable() {
@@ -172,7 +230,7 @@ public class ActividadMemoria extends AppCompatActivity {
                         imgb.setEnabled(true);
                         bloqueo = false;
                         primero = null;
-                        if (puntuacion >= 10){
+                        if (puntuacion >= 10) {
                             puntuacion--;
                         }
 
@@ -183,13 +241,13 @@ public class ActividadMemoria extends AppCompatActivity {
         }
     }
 
-    private void init(){
+    private void init() {
         cargarTablero();
         cargarBotones();
         cargarTexto();
         cargarImagenes();
         arrayDesordenado = barajar(imagenes.length);
-        for(int i=0; i<tablero.length; i++){
+        for (int i = 0; i < tablero.length; i++) {
             tablero[i].setScaleType(ImageView.ScaleType.CENTER_CROP);
             tablero[i].setImageResource(imagenes[arrayDesordenado.get(i)]);
             //tablero[i].setImageResource(fondo);
@@ -197,20 +255,20 @@ public class ActividadMemoria extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                for(int i=0; i<tablero.length; i++){
+                for (int i = 0; i < tablero.length; i++) {
                     tablero[i].setScaleType(ImageView.ScaleType.CENTER_CROP);
                     //tablero[i].setImageResource(imagenes[arrayDesordenado.get(i)]);
                     tablero[i].setImageResource(fondo);
                 }
             }
         }, 500);
-        for(int i=0; i<tablero.length; i++) {
+        for (int i = 0; i < tablero.length; i++) {
             final int j = i;
             tablero[i].setEnabled(true);
             tablero[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!bloqueo)
+                    if (!bloqueo)
                         comprobar(j, tablero[j]);
                 }
             });
@@ -219,17 +277,25 @@ public class ActividadMemoria extends AppCompatActivity {
     }
 
     private void guardarActividadEnAPI() {
-        String nombreActividad = "Juego de Memorias"; // Nombre de la actividad
         int puntajeAlcanzado = puntuacion; // Puntaje obtenido por el usuario
-        int pint_Max= 10;
-        int pint_Min= 2;
+        int pint_Max = 10;
+        int pint_Min = 2;
 
+        Niveles niveles = new Niveles();
+        niveles.setId_nivel(1);
 
-        Actividad actividad = new Actividad();
+        Recursos recursos = new Recursos();
+        recursos.setId_recurso(1);
+
+        tipo_aprendizaje.setId_tipo_aprend(1);
+
         actividad.setAct_nombre(nombreActividad);
         actividad.setAct_puntaje_alcanzado(puntajeAlcanzado);
         actividad.setAct_puntaje_max(pint_Max);
         actividad.setAct_puntaje_min(pint_Min);
+        actividad.setRecursos(recursos);
+        actividad.setNiveles(niveles);
+        actividad.setTipo_aprendizaje(tipo_aprendizaje);
 
         ApiActividades.crearActividad(this, actividad,
                 new Response.Listener<JSONObject>() {
@@ -264,7 +330,195 @@ public class ActividadMemoria extends AppCompatActivity {
                         // Mostrar el mensaje de error en un Toast
                         Toast.makeText(ActividadMemoria.this, mensajeError, Toast.LENGTH_LONG).show();
                     }
-         });
+                });
     }
 
+
+    private int getRandomImageIndex() {
+        Random random = new Random();
+        return random.nextInt(images.length);
+    }
+
+    public void guardarApiResultado() {
+
+        resultados.setRe_puntaje(puntuacion);
+        resultados.setActividad(actividad);
+        ApiResultados.crearResultado(this, resultados, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                mostrarMensaje("Resultado tambien agregado");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mostrarMensaje("Error al agregar el resultado");
+            }
+        });
+    }
+
+    public void getIdMaxAct() {
+        apiActividad = new ApiActividades();
+
+        LiveData<Integer> idActividadLiveData = apiActividad.getIdActividadLiveData(this);
+
+        idActividadLiveData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer idActividad) {
+                if (idActividad != null) {
+                    // Aquí puedes usar el ID más alto en tu lógica
+                    actividad.setId_activ(idActividad);
+                    System.out.println("GUARDODOO :: "+ actividad.getId_activ());
+                    guardarApiResultado();
+                } else {
+                    // Manejar el caso de error
+                    mostrarMensaje("Error al obtener el ID más alto desde la respuesta.");
+                }
+            }
+        });
+    }
+
+    public void getIdMaxResult() {
+        apiResult = new ApiResultados();
+
+        LiveData<Integer> idLiveData = apiResult.getIdResultadoLiveData(this);
+
+        idLiveData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer idResult) {
+                if (idResult != null) {
+                    // Aquí puedes usar el ID más alto en tu lógica
+                    resultados.setId_resultado(idResult);
+
+                    guardarApiProgApr();
+                } else {
+                    // Manejar el caso de error
+                    mostrarMensaje("Error al obtener el ID más alto desde la respuesta.");
+                }
+            }
+        });
+    }
+
+    public void getIdMaxProa() {
+        apiProgresoAprendizaje = new ApiProgresoAprendizaje();
+
+        LiveData<Integer> idLiveData = apiProgresoAprendizaje.getIdProgApLiveData(this);
+
+        idLiveData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer idResult) {
+                if (idResult != null) {
+                    // Aquí puedes usar el ID más alto en tu lógica
+                    progreso_aprendizaje.setId_prog_aprend(idResult);
+
+                    guardarApiProg();
+                } else {
+                    // Manejar el caso de error
+                    mostrarMensaje("Error al obtener el ID más alto desde la respuesta.");
+                }
+            }
+        });
+    }
+
+    public void getIdMaxProgre() {
+        apiProgreso = new ApiProgreso();
+
+        LiveData<Integer> idLiveData = apiProgreso.getIdProgLiveData(this);
+
+        idLiveData.observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer idResult) {
+                if (idResult != null) {
+                    // Aquí puedes usar el ID más alto en tu lógica
+                    progreso.setId_progress(idResult);
+
+                    guardarJugador();
+                } else {
+                    // Manejar el caso de error
+                    mostrarMensaje("Error al obtener el ID más alto desde la respuesta.");
+                }
+            }
+        });
+    }
+
+    public void guardarJugador() {
+        System.out.println("ID recibooo activ    >> "+actividad.getId_activ());
+
+
+        userid.setId_usuario(id_usu);
+
+        jugador.setUsuarios(userid);
+        jugador.setActividad(actividad);
+        jugador.setProgreso(progreso);
+        jugador.setNombre("Eddy150");
+
+        System.out.println("ID DE ACTIVIDAD :: "+ jugador.getActividad().getId_activ());
+        System.out.println("ID PROGRESO:::" + jugador.getProgreso().getId_progress());
+        ApiJugador.crearJugador(this, jugador, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println("Jugador tambien agregado");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mostrarMensaje("Error al Jugador el resultado");
+            }
+        });
+    }
+
+    public void guardarApiProgApr() {
+        System.out.println("ccccccccc:::   "+resultados.getId_resultado());
+        progreso_aprendizaje.setId_resultado(resultados);
+        System.out.println("ESTE EL ES EL ID DE RESUL   "+ progreso_aprendizaje.getId_resultado().getId_resultado());
+        progreso_aprendizaje.setId_tipo_apren(tipo_aprendizaje);
+        progreso_aprendizaje.setProgApren_nombre(nombreActividad);
+        progreso_aprendizaje.setProgApren_puntaje(puntuacion);
+        ApiProgresoAprendizaje.crearProgresoApren(this, progreso_aprendizaje, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println("ProgApren tambien agregado");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mostrarMensaje("Error al ProgApren el resultado");
+            }
+        });
+    }
+
+    private void mostrarMensaje(String mensaje) {
+        Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
+    }
+
+    public void guardarApiProg() {
+
+        progreso.setProgreso_aprendizaje(progreso_aprendizaje);
+        progreso.setProg_nivel(1);
+        progreso.setProg_puntaje_total(puntuacion);
+        progreso.setProg_fecha_init(getCurrentDate());
+        ApiProgreso.crearProgreso(this, progreso, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                System.out.println("Progreso tambien agregado");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mostrarMensaje("Error al Progreso el resultado");
+            }
+        });
+    }
+
+    private String getCurrentDate() {
+        // Obtener la fecha actual como un objeto Date
+        Date date = new Date();
+
+        // Definir el formato deseado para la fecha (yyyy-MM-dd)
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        // Formatear la fecha como una cadena en el formato especificado
+        String formattedDate = dateFormat.format(date);
+
+        return formattedDate;
+    }
 }

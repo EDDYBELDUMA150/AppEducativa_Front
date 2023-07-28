@@ -33,6 +33,7 @@ public class MainSesion extends AppCompatActivity {
     ArrayList<Usuario> datos =new ArrayList<>();
 
     private Usuario usuario;
+    private int id_player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +44,6 @@ public class MainSesion extends AppCompatActivity {
         contraseñaEditText = findViewById(R.id.txtInicioS_Clave);
         iniciarSesionButton = findViewById(R.id.btInicioS_inicioSesion);
         registroButton = findViewById(R.id.btInicioS_registrarse);
-
-
 
         iniciarSesionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +73,7 @@ public class MainSesion extends AppCompatActivity {
                             String message = response.getString("message");
                             Usuario us = new Usuario();
                             us.setId_usuario(Integer.parseInt(response.getString("id_usuario")));
+                            id_player = Integer.parseInt(response.getString("id_usuario"));
                             us.setUsu_correo(response.getString("correo"));
                             us.setUsu_fechaNacimiento(response.getString("usu_fecha_nacimiento"));
                             us.setUsu_nivelacademico(response.getString("usu_nivelacademico"));
@@ -136,6 +136,7 @@ public class MainSesion extends AppCompatActivity {
 
     private void mostrarSegundaActivity() {
         Intent intent = new Intent(this, InicioApp.class);
+        intent.putExtra("player", id_player);
         startActivity(intent);
     }
 

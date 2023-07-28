@@ -8,31 +8,30 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.appeducativa.clases.Jugador;
-import com.example.appeducativa.clases.Usuario;
+import com.example.appeducativa.clases.Progreso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ApiJugadores {
-
+public class ApiJugador {
     private static final String BASE_URL = "http://10.0.2.2:8080/api/";
 
     public static void crearJugador(Context context, Jugador jugador, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "jugador/create";
-        System.out.println("ID jugdaor "+jugador.getUsuarios().getId_usuario());
+
         try {
             JSONObject jsonObject = new JSONObject();
-            JSONObject usuarioObject = new JSONObject();
-            JSONObject actividadObject = new JSONObject();
             JSONObject progresoObject = new JSONObject();
+            JSONObject actvObject = new JSONObject();
+            JSONObject userObject = new JSONObject();
 
-            usuarioObject.put("id_usuario", jugador.getUsuarios().getId_usuario());
-            actividadObject.put("id_activ", jugador.getActividad().getId_activ());
             progresoObject.put("id_progress", jugador.getProgreso().getId_progress());
+            actvObject.put("id_activ", jugador.getActividad().getId_activ());
+            userObject.put("id_usuario", jugador.getUsuarios().getId_usuario());
 
-            jsonObject.put("usuarios", usuarioObject);
-            jsonObject.put("actividad", actividadObject);
             jsonObject.put("progreso", progresoObject);
+            jsonObject.put("actividad", actvObject);
+            jsonObject.put("usuarios", userObject);
             jsonObject.put("player_nombre", jugador.getNombre());
 
             JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
@@ -54,4 +53,6 @@ public class ApiJugadores {
             e.printStackTrace();
         }
     }
+
+
 }

@@ -2,6 +2,9 @@ package com.example.appeducativa.modeloapi;
 
 import android.content.Context;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -46,6 +49,8 @@ public class ApiResultados {
             JSONObject jsonObject = new JSONObject();
             JSONObject actvidadObject = new JSONObject();
 
+            System.out.println("ID DE ACTIVIDAD EN JSON:" + resultados.getActividad().getId_activ());
+
             actvidadObject.put("id_activ", resultados.getActividad().getId_activ());
 
             jsonObject.put("actividad", actvidadObject);
@@ -89,4 +94,35 @@ public class ApiResultados {
 
         Volley.newRequestQueue(context).add(request);
     }
+
+    public LiveData<Integer> getIdResultadoLiveData(Context context) {
+        MutableLiveData<Integer> idLiveData = new MutableLiveData<>();
+
+        String url = BASE_URL + "resultados/latest";
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            int idActividad = response.getInt("id_resultado");
+                            idLiveData.setValue(idActividad);
+                        } catch (JSONException e) {
+                            idLiveData.setValue(null);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        idLiveData.setValue(null);
+                    }
+                }
+        );
+
+        Volley.newRequestQueue(context).add(request);
+
+        return idLiveData;
+    }
+
+
 }

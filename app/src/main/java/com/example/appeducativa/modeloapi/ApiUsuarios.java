@@ -56,24 +56,6 @@ public class ApiUsuarios {
         Volley.newRequestQueue(context).add(request);
     }
 
-    public void loginApi3 (Context context, String correo, String password, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
-        String url = BASE_URL + "usuarios/login3?correo="+correo+"&password="+password;
-
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        successListener.onResponse(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        errorListener.onErrorResponse(error);
-                    }
-                });
-        Volley.newRequestQueue(context).add(request);
-    }
 
     public static void crearUsuario(Context context, Usuario usuario, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "usuarios/create";

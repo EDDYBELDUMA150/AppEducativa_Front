@@ -2,25 +2,30 @@ package com.example.appeducativa.modeloapi;
 
 import android.content.Context;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 import com.example.appeducativa.clases.Actividad;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.ExecutionException;
+
 public class ApiActividades {
 
+    private MutableLiveData<Integer> idActividadLiveData = new MutableLiveData<>();
     private static final String BASE_URL = "http://10.0.2.2:8080/api/";
 
     public static void crearActividad(Context context, Actividad actividad, final Response.Listener<JSONObject> successListener, final Response.ErrorListener errorListener) {
         String url = BASE_URL + "actividad/create";
-
-        System.out.println("ID RECURSO "+actividad.getRecursos().getId_recurso()+ "ID TIPO "+actividad.getTipo_aprendizaje().getId_tipo_aprend()+"ID NIVELES "+actividad.getNiveles().getId_nivel());
-
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject nivelObject = new JSONObject();
@@ -62,5 +67,34 @@ public class ApiActividades {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public LiveData<Integer> getIdActividadLiveData(Context context) {
+        MutableLiveData<Integer> idActividadLiveData = new MutableLiveData<>();
+
+        String url = BASE_URL + "actividad/latest";
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            int idActividad = response.getInt("id_activ");
+                            idActividadLiveData.setValue(idActividad);
+                        } catch (JSONException e) {
+                            idActividadLiveData.setValue(null);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        idActividadLiveData.setValue(null);
+                    }
+                }
+        );
+
+        Volley.newRequestQueue(context).add(request);
+
+        return idActividadLiveData;
     }
 }
